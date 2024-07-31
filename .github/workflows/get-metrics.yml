@@ -10,6 +10,10 @@ jobs:
     defaults:
       run:
         working-directory: ./log
+    permissions:
+      contents: read
+      actions: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,3 +37,7 @@ jobs:
         run: npm ci
       - run: npm run build
       - run: node dist
+        with:
+          sources: |
+            GitHub->https://github.com
+            Facebook->https://facebook.com
