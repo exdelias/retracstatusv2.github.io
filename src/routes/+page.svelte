@@ -1,18 +1,28 @@
 <script lang="ts">
 	import Status from '$lib/components/Status.svelte';
+	import System from '$lib/components/System.svelte';
+
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 </script>
 
-<div class="hero bg-base-200 min-h-screen">
-	<div class="hero-content text-center">
-		<div class="max-w-3xl">
-			<h1 class="text-5xl font-bold">Status Page</h1>
-			<p class="py-6">
-				Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem
-				quasi. In deleniti eaque aut repudiandae et a id nisi.
-			</p>
-			<button class="btn btn-primary">Get Started</button>
-			<Status name="Example" />
-			<Status name="Facebook" />
-		</div>
+<div class="w-full bg-accent header min-h-[20vh] lg:min-h-[25vh] flex items-end justify-center">
+	<div class="h-full w-full mx-2 md:mx-12">
+		<System systems={data.statusLog} />
 	</div>
 </div>
+<main class="text-center mx-4 md:mx-12 py-4">
+	<div class="max-w-3xl min-w-[50vw] mx-auto">
+		{#each data.statusLog as [name, siteStatus]}
+			<Status {name} statuses={siteStatus} />
+		{/each}
+	</div>
+</main>
+
+<style lang="postcss">
+	.header {
+		height: 100%;
+		background: linear-gradient(180deg, theme('colors.accent') 60%, transparent 40%);
+	}
+</style>
