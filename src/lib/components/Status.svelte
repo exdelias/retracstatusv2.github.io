@@ -4,10 +4,8 @@
 	export let name: string;
 	export let statuses: Status[];
 
-	function calculateDifferenceInDays(firstDate: Date, secondDate: Date): number {
-		const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-		return Math.round(Math.abs((+firstDate - +secondDate) / oneDay)) + 1;
-	}
+	const calculateDifferenceInDays = (firstDate: Date, secondDate: Date): number =>
+		Math.ceil(Math.abs(+firstDate - +secondDate) / (1000 * 60 * 60 * 24));
 
 	let message = 'Lacking historical data';
 	let lastStatus: Status = { status: StatusCode.ERROR, date: new Date() };
