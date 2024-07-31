@@ -6,6 +6,12 @@ import { PullRequest } from "@octokit/webhooks-types";
 import { generateCoreLogger } from "./util";
 import { Repo } from "./github/types";
 import { StatusChecker } from "./status";
+import { envsafe, str } from "envsafe";
+
+export const env = envsafe({
+  SOURCES: str(),
+  GITHUB_TOKEN: str(),
+});
 
 const getRepo = (ctx: Context):Repo => {
 
@@ -25,16 +31,16 @@ setOutput("repo", `${repo.owner}/${repo.repo}`);
  * 
  * The `->` is the delimeter between the site name and the url
  */
-const sources = process.env.SOURCES?.split("\n").map((line) => line.split("->"));
+const sources = env.SOURCES.split("\n").map((line) => line.split("->"));
 
 const logger = generateCoreLogger();
 const run = async () => {
 
-  const token = getInput("GITHUB_TOKEN", { required: true });
+  const token = env.GITHUB_TOKEN;
   const o = getOctokit(token);
 
   const siteResult:Array<[string,boolean]> = [];
-  for(const [name,url] of sources ?? []) {
+  for(const [name,url] of sources) {
     const statusChecker = new StatusChecker(name, url, logger);
     const result = await statusChecker.verifyEndpoint();
     siteResult.push([name, result]);

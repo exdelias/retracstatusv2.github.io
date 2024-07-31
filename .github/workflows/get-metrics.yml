@@ -41,3 +41,4 @@ jobs:
           SOURCES: |
             GitHub->https://github.com
             Facebook->https://facebook.com
+          GITHUB_TOKEN: ${{ github.token }}
