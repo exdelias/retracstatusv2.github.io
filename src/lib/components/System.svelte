@@ -3,7 +3,7 @@
 
 	export let systems: [string, Status[]][];
 
-	const lastState = systems.map(([_, status]) => status.at(-1));
+	const lastState = systems.map(([, status]) => status.at(-1));
 	let systemState: StatusCode;
 	if (lastState.every((state) => state?.status === StatusCode.OK)) {
 		systemState = StatusCode.OK;
