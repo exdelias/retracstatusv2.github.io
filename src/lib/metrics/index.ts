@@ -1,6 +1,6 @@
 import reports from '$lib/logs.json';
-import moment from 'moment';
 import { StatusCode, type Status } from '$lib/types';
+import moment from 'moment';
 
 export function loadStatusReport(): Array<[string, Status[]]> {
 	// We generate the array that we will use
