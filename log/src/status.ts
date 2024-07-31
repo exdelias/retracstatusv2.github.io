@@ -4,7 +4,7 @@ import axios, { AxiosError } from "axios";
 export class StatusChecker {
     constructor(private readonly siteName:string,private readonly healthEndpoint:string,
         private readonly logger: ActionLogger){
-
+logger.info(`Created Status Checker for ${siteName}`);
         }
 
         async verifyEndpoint() :Promise<boolean> {

@@ -31,7 +31,7 @@ setOutput("repo", `${repo.owner}/${repo.repo}`);
  * 
  * The `->` is the delimeter between the site name and the url
  */
-const sources = env.SOURCES.split("\n").map((line) => line.split("->"));
+const sources = env.SOURCES.trim().split("\n").map((line) => line.split("->"));
 
 const logger = generateCoreLogger();
 const run = async () => {
