@@ -5,7 +5,7 @@
 	export let statuses: Status[];
 
 	const calculateDifferenceInDays = (firstDate: Date, secondDate: Date): number =>
-		Math.ceil(Math.abs(+firstDate - +secondDate) / (1000 * 60 * 60 * 24));
+		Math.ceil(Math.abs(+firstDate - +secondDate) / (1000 * 60 * 60 * 24)) + 1;
 
 	let message = 'Lacking historical data';
 	let lastStatus: Status = { status: StatusCode.ERROR, date: new Date() };
