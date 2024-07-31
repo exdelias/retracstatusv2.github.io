@@ -7,6 +7,7 @@ import { generateCoreLogger } from "./util";
 import { Repo } from "./github/types";
 import { StatusChecker } from "./status";
 import { envsafe, str } from "envsafe";
+import { ArtifactManager } from "./github/artifact";
 
 export const env = envsafe({
   SOURCES: str(),
@@ -37,7 +38,8 @@ const logger = generateCoreLogger();
 const run = async () => {
 
   const token = env.GITHUB_TOKEN;
-  const o = getOctokit(token);
+  const api = getOctokit(token);
+  const artifactManager = new ArtifactManager(api, logger);
 
   const siteResult:Array<[string,boolean]> = [];
   for(const [name,url] of sources) {
@@ -45,6 +47,7 @@ const run = async () => {
     const result = await statusChecker.verifyEndpoint();
     siteResult.push([name, result]);
   }
+  await artifactManager.generateArtifact(siteResult);
 }
 
 run().catch(setFailed);
