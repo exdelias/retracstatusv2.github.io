@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { StatusCode, type Status } from '$lib/types';
 
-	export let systems: [string, Status[]][];
+	export let systems: Array<[string, Status[]]>;
 
 	const lastState = systems.map(([, status]) => status.at(-1));
 	let systemState: StatusCode;

@@ -2,9 +2,9 @@ import reports from '$lib/logs.json';
 import moment from 'moment';
 import { StatusCode, type Status } from '$lib/types';
 
-export function loadStatusReport(): [string, Status[]][] {
+export function loadStatusReport(): Array<[string, Status[]]> {
 	// We generate the array that we will use
-	const statusReport: [string, Status[]][] = [];
+	const statusReport: Array<[string, Status[]]> = [];
 
 	// We iterate over every site's reports
 	for (const report of reports) {
