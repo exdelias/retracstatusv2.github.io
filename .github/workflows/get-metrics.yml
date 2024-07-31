@@ -45,7 +45,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: report
-          path: ./report.json
+          path: ./log/report.json
           if-no-files-found: error
           retention-days: 5
           overwrite: true
