@@ -37,7 +37,7 @@ jobs:
         run: npm ci
       - run: npm run build
       - run: node dist
-        with:
-          sources: |
+        env:
+          SOURCES: |
             GitHub->https://github.com
             Facebook->https://facebook.com

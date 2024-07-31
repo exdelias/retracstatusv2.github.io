@@ -25,7 +25,7 @@ setOutput("repo", `${repo.owner}/${repo.repo}`);
  * 
  * The `->` is the delimeter between the site name and the url
  */
-const sources = getInput("source", {required: true}).split("\n").map((line) => line.split("->"));
+const sources = process.env.SOURCES?.split("\n").map((line) => line.split("->"));
 
 const logger = generateCoreLogger();
 const run = async () => {
@@ -34,7 +34,7 @@ const run = async () => {
   const o = getOctokit(token);
 
   const siteResult:Array<[string,boolean]> = [];
-  for(const [name,url] of sources) {
+  for(const [name,url] of sources ?? []) {
     const statusChecker = new StatusChecker(name, url, logger);
     const result = await statusChecker.verifyEndpoint();
     siteResult.push([name, result]);
