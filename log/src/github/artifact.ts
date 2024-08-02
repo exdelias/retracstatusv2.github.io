@@ -53,6 +53,7 @@ export class ArtifactManager {
       }
       return `./logs/${artifactName}`;
     }
+    return null;
   }
 
 
