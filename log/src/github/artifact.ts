@@ -46,6 +46,7 @@ export class ArtifactManager {
 
       if (!artifact) {
         this.logger.info(`Found no artifact in ${run.name}: ${run.id}`);
+        this.logger.info(`Available artifacts ${artifacts.data.artifacts.map(a => a.name)}`);
         return null;
       }
 
