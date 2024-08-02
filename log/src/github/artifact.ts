@@ -13,6 +13,7 @@ export class ArtifactManager {
     this.logger.info(`Looking for previous artifact for file: ${process.env.WORKFLOW_FILENAME}`);
     const workflows = await this.api.rest.actions.listRepoWorkflows(repo);
 
+    this.logger.info("Available workflows: " + JSON.stringify(workflows.data.workflows.map(w => w?.name)));
     const workflow = workflows.data.workflows.find(w => w.path.includes(process.env.WORKFLOW_FILENAME ?? ""));
 
     if (!workflow) {
