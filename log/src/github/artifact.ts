@@ -10,6 +10,7 @@ export class ArtifactManager {
   ) { }
 
   async getPreviousArtifact(repo: Repo): Promise<string | null> {
+    this.logger.info("Looking for previous artifact");
     const workflows = await this.api.rest.actions.listRepoWorkflows(repo);
 
     const workflow = workflows.data.workflows.find(w => w.path.includes(process.env.WORKFLOW_FILENAME ?? ""));
@@ -18,6 +19,8 @@ export class ArtifactManager {
       this.logger.error("No workflow file found");
       return null;
     }
+
+    this.logger.info(`Found workflow for ${workflow.name}`);
 
     const runs = await this.api.rest.actions.listWorkflowRuns({
       ...repo,
@@ -32,6 +35,7 @@ export class ArtifactManager {
     }
 
     for (const run of runs.data.workflow_runs) {
+      this.logger.info(`Searching for artifact in ${run.name}: ${run.id}`);
       const artifacts = await this.api.rest.actions.listWorkflowRunArtifacts({
         ...repo,
         run_id: run.id
@@ -39,18 +43,21 @@ export class ArtifactManager {
 
       const artifact = artifacts.data.artifacts.find(artifact => artifact.name === artifactName);
 
-      if (artifact) {
-        const response = await this.api.rest.actions.downloadArtifact({
-          ...repo,
-          artifact_id: artifact.id,
-          archive_format: "zip"
-        });
-        await writeFile(artifactName, Buffer.from(response.data as string));
-        execSync(`unzip -o ${artifactName} -d ./logs`);
-
-        this.logger.info("Artifact downloaded correctly");
-
+      if (!artifact) {
+        this.logger.info(`Found no artifact in ${run.name}: ${run.id}`);
+        return null;
       }
+
+      const response = await this.api.rest.actions.downloadArtifact({
+        ...repo,
+        artifact_id: artifact.id,
+        archive_format: "zip"
+      });
+      await writeFile(artifactName, Buffer.from(response.data as string));
+      execSync(`unzip -o ${artifactName} -d ./logs`);
+
+      this.logger.info("Artifact downloaded correctly");
+
       return `./logs/${artifactName}`;
     }
     return null;
