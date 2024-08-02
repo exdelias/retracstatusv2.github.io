@@ -41,6 +41,9 @@ const run = async () => {
   const api = getOctokit(token);
   const artifactManager = new ArtifactManager(api, logger);
 
+  const artifact = await artifactManager.getPreviousArtifact(repo);
+  console.log(artifact);
+
   const siteResult:Array<[string,boolean]> = [];
   for(const [name,url] of sources) {
     const statusChecker = new StatusChecker(name, url, logger);

@@ -9,7 +9,7 @@ export class ArtifactManager {
     private readonly logger: ActionLogger,
   ) { }
 
-  async getPreviousArtifact(repo: Repo) {
+  async getPreviousArtifact(repo: Repo): Promise<string | null> {
     const workflows = await this.api.rest.actions.listRepoWorkflows(repo);
 
     const workflow = workflows.data.workflows.find(w => w.path.includes(process.env.WORKFLOW_FILENAME ?? ""));
@@ -28,7 +28,7 @@ export class ArtifactManager {
 
     if (runs.data.total_count === 0) {
       this.logger.error("No runs detected. Is this the first run?");
-      return;
+      return null;
     }
 
     for (const run of runs.data.workflow_runs) {
