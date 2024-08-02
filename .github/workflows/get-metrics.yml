@@ -1,4 +1,4 @@
-name: Test scripts
+name: Test cron job
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    name: Tests
+    name: Cron
     defaults:
       run:
         working-directory: ./log
@@ -42,7 +42,7 @@ jobs:
             GitHub->https://github.com
             Facebook->https://facebook.com
           GITHUB_TOKEN: ${{ github.token }}
-          JOB_NAME: ${{ github.jobs[github.job].name }}
+          JOB_NAME: ${{ github.workflow }}-${{ github.run-name }}
       - uses: actions/upload-artifact@v4
         with:
           name: report
