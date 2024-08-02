@@ -15,7 +15,7 @@ export const env = envsafe({
   JOB_NAME: str(),
 });
 
-const getRepo = (ctx: Context):Repo => {
+const getRepo = (ctx: Context): Repo => {
 
   return ctx.repo;
 };
@@ -43,11 +43,11 @@ const run = async () => {
   const api = getOctokit(token);
   const artifactManager = new ArtifactManager(api, logger);
 
-  const artifact = await artifactManager.getPreviousArtifact(repo);
+  const artifact = await artifactManager.getPreviousArtifact(repo, env.JOB_NAME);
   console.log(artifact);
 
-  const siteResult:Array<[string,boolean]> = [];
-  for(const [name,url] of sources) {
+  const siteResult: Array<[string, boolean]> = [];
+  for (const [name, url] of sources) {
     const statusChecker = new StatusChecker(name, url, logger);
     const result = await statusChecker.verifyEndpoint();
     siteResult.push([name, result]);
