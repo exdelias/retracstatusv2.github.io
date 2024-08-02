@@ -9,12 +9,12 @@ export class ArtifactManager {
     private readonly logger: ActionLogger,
   ) { }
 
-  async getPreviousArtifact(repo: Repo): Promise<string | null> {
+  async getPreviousArtifact(repo: Repo, workflowName: string): Promise<string | null> {
     this.logger.info(`Looking for previous artifact for file: ${process.env.WORKFLOW_FILENAME}`);
     const workflows = await this.api.rest.actions.listRepoWorkflows(repo);
 
     this.logger.info("Available workflows: " + JSON.stringify(workflows.data.workflows.map(w => w?.name)));
-    const workflow = workflows.data.workflows.find(w => w.path.includes(process.env.WORKFLOW_FILENAME ?? ""));
+    const workflow = workflows.data.workflows.find(w => w.name === workflowName);
 
     if (!workflow) {
       this.logger.error("No workflow file found");

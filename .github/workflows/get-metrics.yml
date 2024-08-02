@@ -42,7 +42,7 @@ jobs:
             GitHub->https://github.com
             Facebook->https://facebook.com
           GITHUB_TOKEN: ${{ github.token }}
-          JOB_NAME: ${{ github.workflow }}-${{ github.run-name }}
+          JOB_NAME: ${{ github.workflow }}
       - uses: actions/upload-artifact@v4
         with:
           name: report
