@@ -12,6 +12,7 @@ import { ArtifactManager } from "./github/artifact";
 export const env = envsafe({
   SOURCES: str(),
   GITHUB_TOKEN: str(),
+  JOB_NAME: str(),
 });
 
 const getRepo = (ctx: Context):Repo => {
@@ -35,6 +36,7 @@ setOutput("repo", `${repo.owner}/${repo.repo}`);
 const sources = env.SOURCES.trim().split("\n").map((line) => line.split("->"));
 
 const logger = generateCoreLogger();
+logger.info("Job names is: " + env.JOB_NAME);
 const run = async () => {
 
   const token = env.GITHUB_TOKEN;
