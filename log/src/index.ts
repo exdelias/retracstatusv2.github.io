@@ -8,7 +8,8 @@ import { Repo } from "./github/types";
 import { StatusChecker } from "./status";
 import { envsafe, str } from "envsafe";
 import { ArtifactManager } from "./github/artifact";
-import {readdir} from "fs/promises";
+import { readdir } from "fs/promises";
+import { lstatSync } from "fs"
 
 export const env = envsafe({
   SOURCES: str(),
@@ -48,6 +49,7 @@ const run = async () => {
   const artifact = await artifactManager.getPreviousArtifact(repo, env.JOB_NAME);
   logger.info(`Artifact: ${artifact}`);
   if (artifact) {
+    logger.info(`Is ${artifact} a directory? ${lstatSync(artifact).isDirectory()}`);
     const files = await readdir(artifact);
     logger.info(`Found the following artifacts: ${JSON.stringify(files)}`);
   }

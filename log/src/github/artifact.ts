@@ -1,12 +1,13 @@
 import { GitHubClient, ActionLogger, Repo } from "./types";
 import { writeFile } from "fs/promises";
 import { execSync } from "child_process";
+import {resolve} from "path";
 
 export class ArtifactManager {
   constructor(
     private readonly api: GitHubClient,
     private readonly logger: ActionLogger,
-    private readonly artifactName:string,
+    private readonly artifactName: string,
   ) { }
 
   async getPreviousArtifact(repo: Repo, workflowName: string): Promise<string | null> {
@@ -66,7 +67,7 @@ export class ArtifactManager {
 
       this.logger.info("Artifact downloaded correctly");
 
-      return `./logs/${this.artifactName}`;
+      return resolve(`./logs`);
     }
     return null;
   }
@@ -92,4 +93,4 @@ export class ArtifactManager {
     return writeFile(`${this.artifactName}.json`, JSON.stringify(file));
   }
 }
-  
+
