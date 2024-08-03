@@ -1,12 +1,12 @@
 import { GitHubClient, ActionLogger, Repo } from "./types";
 import { writeFile } from "fs/promises";
 import { execSync } from "child_process";
-const artifactName = "REPORT.json";
 
 export class ArtifactManager {
   constructor(
     private readonly api: GitHubClient,
     private readonly logger: ActionLogger,
+    private readonly artifactName:string,
   ) { }
 
   async getPreviousArtifact(repo: Repo, workflowName: string): Promise<string | null> {
@@ -35,6 +35,8 @@ export class ArtifactManager {
       return null;
     }
 
+    this.logger.info(`Found ${runs.data.total_count} runs.`)
+
     for (const run of runs.data.workflow_runs) {
       this.logger.info(`Searching for artifact in ${run.name}: ${run.id}`);
       const artifacts = await this.api.rest.actions.listWorkflowRunArtifacts({
@@ -42,7 +44,9 @@ export class ArtifactManager {
         run_id: run.id
       });
 
-      const artifact = artifacts.data.artifacts.find(artifact => artifact.name === artifactName);
+      this.logger.info(`Found the following ${artifacts.data.total_count} artifacts: ${artifacts.data.artifacts.map(a => a.name)}`)
+
+      const artifact = artifacts.data.artifacts.find(artifact => artifact.name === this.artifactName);
 
       if (!artifact) {
         this.logger.info(`Found no artifact in ${run.name}: ${run.id}`);
@@ -55,12 +59,12 @@ export class ArtifactManager {
         artifact_id: artifact.id,
         archive_format: "zip"
       });
-      await writeFile(artifactName, Buffer.from(response.data as string));
-      execSync(`unzip -o ${artifactName} -d ./logs`);
+      await writeFile(this.artifactName, Buffer.from(response.data as string));
+      execSync(`unzip -o ${this.artifactName} -d ./logs`);
 
       this.logger.info("Artifact downloaded correctly");
 
-      return `./logs/${artifactName}`;
+      return `./logs/${this.artifactName}`;
     }
     return null;
   }
@@ -83,6 +87,7 @@ export class ArtifactManager {
       file.push(metric);
     }
 
-    return writeFile("report.json", JSON.stringify(file));
+    return writeFile(`${this.artifactName}.json`, JSON.stringify(file));
   }
 }
+  

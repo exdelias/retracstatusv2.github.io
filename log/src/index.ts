@@ -13,6 +13,7 @@ export const env = envsafe({
   SOURCES: str(),
   GITHUB_TOKEN: str(),
   JOB_NAME: str(),
+  ARTIFACT_NAME: str(),
 });
 
 const getRepo = (ctx: Context): Repo => {
@@ -41,7 +42,7 @@ const run = async () => {
 
   const token = env.GITHUB_TOKEN;
   const api = getOctokit(token);
-  const artifactManager = new ArtifactManager(api, logger);
+  const artifactManager = new ArtifactManager(api, logger, env.ARTIFACT_NAME);
 
   const artifact = await artifactManager.getPreviousArtifact(repo, env.JOB_NAME);
   console.log(artifact);

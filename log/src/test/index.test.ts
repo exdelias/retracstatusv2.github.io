@@ -22,6 +22,6 @@ test("Write to doc", async () => {
     const statusChecker = new StatusChecker(site, url, console);
     siteResult.push([site, await statusChecker.verifyEndpoint()]);
   }
-  const am = new ArtifactManager(null as unknown as GitHubClient, console);
+  const am = new ArtifactManager(null as unknown as GitHubClient, console, "test");
   await am.generateArtifact(siteResult);
 })
