@@ -1,7 +1,7 @@
 import { GitHubClient, ActionLogger, Repo } from "./types";
-import { writeFile } from "fs/promises";
+import { writeFile, readFile } from "fs/promises";
 import { execSync } from "child_process";
-import {resolve} from "path";
+import { resolve } from "path";
 
 export class ArtifactManager {
   constructor(
@@ -36,10 +36,10 @@ export class ArtifactManager {
       return null;
     }
 
-    this.logger.info(`Found ${runs.data.total_count} runs: ${runs.data.workflow_runs.map(w => w.run_started_at)}`)
+    this.logger.info(`Found ${runs.data.total_count} runs: ${JSON.stringify(runs.data.workflow_runs.map(w => w.run_started_at))}`)
 
     for (const run of runs.data.workflow_runs) {
-      this.logger.info(`Searching for artifact in ${run.name}: ${run.id}`);
+      this.logger.info(`Searching for artifact in ${run.name}: ${run.id} - ${run.run_started_at}`);
       const artifacts = await this.api.rest.actions.listWorkflowRunArtifacts({
         ...repo,
         run_id: run.id
@@ -67,7 +67,12 @@ export class ArtifactManager {
 
       this.logger.info("Artifact downloaded correctly");
 
-      return resolve(`./logs`);
+      const artifactLocation = resolve(`./logs/${this.artifactName}.json`);
+      this.logger.info("Artifact downloaded to " + artifactLocation);
+      
+      const file = await readFile(artifactLocation, "utf-8");
+      this.logger.debug(`Old artifact: ${file}`);
+      return file;
     }
     return null;
   }
