@@ -35,7 +35,7 @@ export class ArtifactManager {
       return null;
     }
 
-    this.logger.info(`Found ${runs.data.total_count} runs.`)
+    this.logger.info(`Found ${runs.data.total_count} runs: ${runs.data.workflow_runs.map(w => w.run_started_at)}`)
 
     for (const run of runs.data.workflow_runs) {
       this.logger.info(`Searching for artifact in ${run.name}: ${run.id}`);
@@ -44,7 +44,9 @@ export class ArtifactManager {
         run_id: run.id
       });
 
-      this.logger.info(`Found the following ${artifacts.data.total_count} artifacts: ${artifacts.data.artifacts.map(a => a.name)}`)
+      this.logger.info(`Found the following ${artifacts.data.total_count} artifacts: ${artifacts.data.artifacts.map(a => a.name)}`);
+
+      this.logger.info(`Searching for artifact named ${this.artifactName}`);
 
       const artifact = artifacts.data.artifacts.find(artifact => artifact.name === this.artifactName);
 
