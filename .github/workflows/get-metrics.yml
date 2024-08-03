@@ -2,8 +2,11 @@ name: Test cron job
 
 on:
   pull_request:
-jobs:
 
+env:
+  ARTIFACT_NAME: report
+
+jobs:
   test:
     runs-on: ubuntu-latest
     name: Cron
@@ -43,9 +46,10 @@ jobs:
             Facebook->https://facebook.com
           GITHUB_TOKEN: ${{ github.token }}
           JOB_NAME: ${{ github.workflow }}
+          ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
       - uses: actions/upload-artifact@v4
         with:
-          name: report
+          name: ${{ env.ARTIFACT_NAME }}
           path: ./log/report.json
           if-no-files-found: error
           retention-days: 5
