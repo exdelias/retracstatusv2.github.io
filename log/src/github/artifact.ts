@@ -11,7 +11,7 @@ export class ArtifactManager {
     private readonly artifactName: string,
   ) { }
 
-  async getPreviousArtifact(repo: Repo, workflowName: string): Promise<string | null> {
+  async getPreviousArtifact(repo: Repo, workflowName: string): Promise<Array<ReportFile> | null> {
     this.logger.info(`Looking for previous artifact for file: ${workflowName}`);
     const workflows = await this.api.rest.actions.listRepoWorkflows(repo);
 
@@ -71,9 +71,17 @@ export class ArtifactManager {
       const artifactLocation = resolve(`./logs/${this.artifactName}.json`);
       this.logger.info("Artifact downloaded to " + artifactLocation);
 
-      const file = await readFile(artifactLocation, "utf-8");
-      this.logger.debug(`Old artifact: ${file}`);
-      return file;
+      const fileContent = await readFile(artifactLocation, "utf-8");
+      this.logger.debug(`Old artifact: ${fileContent}`);
+      try {
+        const parsedFile: ReportFile[] = JSON.parse(fileContent);
+        if (parsedFile.length > 0) {
+          return parsedFile;
+        }
+      } catch (err) {
+        this.logger.warn("Couldn't read file");
+        this.logger.error(err as Error);
+      }
     }
     return null;
   }

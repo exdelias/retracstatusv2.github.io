@@ -59,8 +59,8 @@ const run = async () => {
   const siteResult: Map<string, ReportFile> = new Map();
 
   if (artifact) {
-    const reports: Array<ReportFile> = JSON.parse(artifact);
-    reports.forEach(report => {
+    logger.info(`Mapping old report: ${JSON.stringify(artifact)}`); 
+    artifact.forEach(report => {
       siteResult.set(report.name, report)
     });
   }
