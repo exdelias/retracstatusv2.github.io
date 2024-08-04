@@ -2,6 +2,7 @@ import { GitHubClient, ActionLogger, Repo } from "./types";
 import { writeFile, readFile } from "fs/promises";
 import { execSync } from "child_process";
 import { resolve } from "path";
+import { ReportFile, Status } from "../types";
 
 export class ArtifactManager {
   constructor(
@@ -69,7 +70,7 @@ export class ArtifactManager {
 
       const artifactLocation = resolve(`./logs/${this.artifactName}.json`);
       this.logger.info("Artifact downloaded to " + artifactLocation);
-      
+
       const file = await readFile(artifactLocation, "utf-8");
       this.logger.debug(`Old artifact: ${file}`);
       return file;
@@ -78,24 +79,8 @@ export class ArtifactManager {
   }
 
 
-  generateArtifact(reports: Array<[string, boolean]>) {
-    const file: Array<{
-      name: string, status: Array<{
-        result: number;
-        timestamp: number;
-      }>
-    }> = [];
-    for (const [name, result] of reports) {
-      const metric: {
-        name: string, status: Array<{
-          result: number;
-          timestamp: number;
-        }>
-      } = { name, status: [{ result: result ? 0 : 1, timestamp: new Date().getTime() }] };
-      file.push(metric);
-    }
-
-    return writeFile(`${this.artifactName}.json`, JSON.stringify(file));
+  generateArtifact(reports: Array<ReportFile>) {
+    return writeFile(`${this.artifactName}.json`, JSON.stringify(reports));
   }
 }
 

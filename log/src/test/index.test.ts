@@ -1,6 +1,7 @@
 import { ArtifactManager } from "../github/artifact";
 import { GitHubClient } from "../github/types";
 import { StatusChecker } from "../status";
+import { ReportFile } from "../types";
 
 const sites: Array<[string, string]> = [
   ["GitHub", "https://github.com"],
@@ -16,11 +17,11 @@ for (const [site, url] of sites) {
 }
 
 test("Write to doc", async () => {
-  const siteResult: Array<[string, boolean]> = [];
+  const siteResult: Array<ReportFile> = [];
 
   for (const [site, url] of sites) {
     const statusChecker = new StatusChecker(site, url, console);
-    siteResult.push([site, await statusChecker.verifyEndpoint()]);
+    siteResult.push({ name: site, status: [{ timestamp: new Date().getTime(), result: (await statusChecker.verifyEndpoint()) }] });
   }
   const am = new ArtifactManager(null as unknown as GitHubClient, console, "test");
   await am.generateArtifact(siteResult);
