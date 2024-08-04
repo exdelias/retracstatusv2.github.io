@@ -71,14 +71,19 @@ const run = async () => {
     const statusChecker = new StatusChecker(name, url, logger);
     const result = await statusChecker.verifyEndpoint();
 
-    // Create if it doesn't exist
-    if (!siteResult.has(name)) {
-      siteResult.set(name, { name, status: [] });
+    let report = siteResult.get(name);
+
+    // Create report if it doesn't exist
+    if (!report) {
+      report = {name, status: []};
     }
 
     // We push the value to the status array
-    siteResult.get(name)?.status.push({ timestamp: new Date().getTime(), result });
+    report.status.push({ timestamp: new Date().getTime(), result });
+    siteResult.set(name, report);
   }
+
+  logger.debug(JSON.stringify(siteResult));
 
   // TODO: Remove things older than X days
   for (let [name, status] of siteResult) {
@@ -89,6 +94,7 @@ const run = async () => {
     if (cleanedStatus.length === 0) {
       // We delete empty entries
       siteResult.delete(name);
+      logger.info(`Deleted report for '${name}' because it's empty`)
     } else {
       siteResult.set(name, { name, status: cleanedStatus });
     }

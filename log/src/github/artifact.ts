@@ -88,7 +88,10 @@ export class ArtifactManager {
 
 
   generateArtifact(reports: Array<ReportFile>) {
-    return writeFile(`${this.artifactName}.json`, JSON.stringify(reports));
+    const reportContent = JSON.stringify(reports);
+    const location = resolve(`${this.artifactName}.json`);
+    this.logger.debug(`Writing to ${location} the content of file ${reportContent}`);
+    return writeFile(location, reportContent);
   }
 }
 
