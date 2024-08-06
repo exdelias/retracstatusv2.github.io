@@ -9,6 +9,7 @@ import { Repo } from "./github/types";
 import { StatusChecker } from "./status";
 import { ReportFile } from "./types";
 import { generateCoreLogger } from "./util";
+import { IncidentManager } from "./github/incidents";
 
 export const env = envsafe({
   SOURCES: str(),
@@ -21,6 +22,10 @@ export const env = envsafe({
   AGE_LIMIT: num({
     default: 45,
     desc: "Limit age (in days) of how old can the timestamps be"
+  }),
+  INCIDENT_LABEL: str({
+    default: "incident",
+    desc: "Name of the label. Not case sensitive"
   })
 });
 
@@ -50,15 +55,16 @@ const run = async () => {
   const token = env.GITHUB_TOKEN;
   const api = getOctokit(token);
   const artifactManager = new ArtifactManager(api, logger, env.ARTIFACT_NAME);
+  const incidentManager = new IncidentManager(api, logger, env.INCIDENT_LABEL);
 
   const artifact = await artifactManager.getPreviousArtifact(repo, env.JOB_NAME);
-  logger.info(`Found artifact with ${artifact?.length} elements`);
+  logger.info(`Found artifact with ${artifact?.site.length ?? 0} elements`);
 
-  const siteResult: Map<string, ReportFile> = new Map();
+  const siteResult: Map<string, ReportFile["site"][number]> = new Map();
 
   if (artifact) {
     logger.info(`Mapping old report`);
-    artifact.forEach(report => {
+    artifact.site.forEach(report => {
       siteResult.set(report.name, report)
     });
   }
@@ -70,7 +76,7 @@ const run = async () => {
     const statusChecker = new StatusChecker(name, url, logger);
     const result = await statusChecker.verifyEndpoint();
 
-    let report = siteResult.get(name);
+    let report: ReportFile["site"][number] | undefined = siteResult.get(name);
 
     // Create report if it doesn't exist
     if (!report) {
@@ -101,7 +107,11 @@ const run = async () => {
     }
   }
 
-  const file = await artifactManager.generateArtifact(Array.from(siteResult.values()));
+  const incidents = await incidentManager.obtainPastIncidents(repo, env.AGE_LIMIT);
+
+  const report: ReportFile = { incidents, site: Array.from(siteResult.values()) }
+
+  const file = await artifactManager.generateArtifact(report);
   setOutput("file", file);
 }
 

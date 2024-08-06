@@ -15,7 +15,7 @@ export class ArtifactManager {
    * Search on the previous GitHub runs for the artifacts and it tries to find a matching one.
    * If it does, it downloads it and parses the content. If not, it returns null
    */
-  async getPreviousArtifact(repo: Repo, workflowName: string): Promise<Array<ReportFile> | null> {
+  async getPreviousArtifact(repo: Repo, workflowName: string): Promise<ReportFile | null> {
     this.logger.info(`Looking for previous artifact for workflow: '${workflowName}'`);
     const workflows = await this.api.rest.actions.listRepoWorkflows(repo);
 
@@ -78,8 +78,8 @@ export class ArtifactManager {
       const fileContent = await readFile(artifactLocation, "utf-8");
       this.logger.debug(`Old artifact: ${fileContent}`);
       try {
-        const parsedFile: ReportFile[] = JSON.parse(fileContent);
-        if (parsedFile.length > 0) {
+        const parsedFile: ReportFile = JSON.parse(fileContent);
+        if (parsedFile.site.length > 0) {
           return parsedFile;
         }
       } catch (err) {
@@ -96,7 +96,7 @@ export class ArtifactManager {
    * @param reports the reports to be stringified
    * @returns The location of the file
    */
-  async generateArtifact(reports: Array<ReportFile>): Promise<string> {
+  async generateArtifact(reports: ReportFile): Promise<string> {
     const reportContent = JSON.stringify(reports);
     const location = resolve(`${this.artifactName}.json`);
     this.logger.debug(`Writing to ${location} the content of file ${reportContent}`);
