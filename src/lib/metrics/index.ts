@@ -1,5 +1,5 @@
 import reports from '$lib/logs.json';
-import { StatusCode, type Status } from '$lib/types';
+import { StatusCode, type ReportFile, type Status } from '$lib/types';
 import moment from 'moment';
 
 export function loadStatusReport(): Array<[string, Status[]]> {
@@ -7,7 +7,7 @@ export function loadStatusReport(): Array<[string, Status[]]> {
 	const statusReport: Array<[string, Status[]]> = [];
 
 	// We iterate over every site's reports
-	for (const report of reports) {
+	for (const report of reports.site) {
 		// Create the nested array object
 		const siteLogs: Status[] = [];
 
@@ -55,4 +55,8 @@ export function loadStatusReport(): Array<[string, Status[]]> {
 		statusReport.push([report.name, siteLogs.reverse()]);
 	}
 	return statusReport;
+}
+
+export function loadIncidents(): ReportFile["incidents"] {
+	return reports.incidents;
 }
