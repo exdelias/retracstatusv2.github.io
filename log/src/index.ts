@@ -3,13 +3,12 @@ import { context, getOctokit } from "@actions/github";
 import { Context } from "@actions/github/lib/context";
 
 import { envsafe, num, str } from "envsafe";
+import moment from "moment";
 import { ArtifactManager } from "./github/artifact";
 import { Repo } from "./github/types";
 import { StatusChecker } from "./status";
+import { ReportFile } from "./types";
 import { generateCoreLogger } from "./util";
-import moment from "moment";
-import { ReportFile, Status } from "./types";
-import { stat } from "fs";
 
 export const env = envsafe({
   SOURCES: str(),
@@ -59,15 +58,16 @@ const run = async () => {
   const siteResult: Map<string, ReportFile> = new Map();
 
   if (artifact) {
-    logger.info(`Mapping old report: ${JSON.stringify(artifact)}`); 
+    logger.info(`Mapping old report: ${JSON.stringify(artifact)}`);
     artifact.forEach(report => {
       siteResult.set(report.name, report)
     });
   }
 
+  const now = moment().unix();
+
   // Run tests on each required source
   for (const [name, url] of sources) {
-    // TODO: Check if name already exists
     const statusChecker = new StatusChecker(name, url, logger);
     const result = await statusChecker.verifyEndpoint();
 
@@ -75,27 +75,29 @@ const run = async () => {
 
     // Create report if it doesn't exist
     if (!report) {
-      report = {name, status: []};
+      report = { name, status: [] };
     }
 
     // We push the value to the status array
-    report.status.push({ timestamp: new Date().getTime(), result });
+    report.status.push({ timestamp: now, result });
     siteResult.set(name, report);
   }
 
-  logger.debug(JSON.stringify(siteResult));
-
-  // TODO: Remove things older than X days
-  for (let [name, status] of siteResult) {
-
+  for (let [name, report] of siteResult) {
+    const beforeCleanLength = report.status.length;
     // Clean old timestamp reports
-    const cleanedStatus = status.status.filter(({ timestamp }) => Math.abs(moment.unix(timestamp).diff(moment.now(), "days")) < env.AGE_LIMIT);
+    const cleanedStatus = report.status.filter(({ timestamp }) => Math.abs(moment.unix(timestamp).diff(moment.now(), "days")) < env.AGE_LIMIT);
+
+    if (cleanedStatus.length !== beforeCleanLength) {
+      logger.debug(`Removed ${beforeCleanLength - cleanedStatus.length} elements from '${name}'`);
+    }
 
     if (cleanedStatus.length === 0) {
       // We delete empty entries
       siteResult.delete(name);
       logger.info(`Deleted report for '${name}' because it's empty`)
     } else {
+      logger.debug(`'${name}' status are ${cleanedStatus}`);
       siteResult.set(name, { name, status: cleanedStatus });
     }
   }

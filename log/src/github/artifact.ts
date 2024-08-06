@@ -12,7 +12,7 @@ export class ArtifactManager {
   ) { }
 
   async getPreviousArtifact(repo: Repo, workflowName: string): Promise<Array<ReportFile> | null> {
-    this.logger.info(`Looking for previous artifact for file: ${workflowName}`);
+    this.logger.info(`Looking for previous artifact for file: '${workflowName}'`);
     const workflows = await this.api.rest.actions.listRepoWorkflows(repo);
 
     this.logger.info("Available workflows: " + JSON.stringify(workflows.data.workflows.map(w => w?.name)));
@@ -63,8 +63,8 @@ export class ArtifactManager {
         artifact_id: artifact.id,
         archive_format: "zip"
       });
-      await writeFile(this.artifactName, Buffer.from(response.data as string));
-      execSync(`unzip -o ${this.artifactName} -d ./logs`);
+      await writeFile(`${this.artifactName}.zip`, Buffer.from(response.data as string));
+      execSync(`unzip -o ${this.artifactName}.zip -d ./logs`);
 
       this.logger.info("Artifact downloaded correctly");
 
