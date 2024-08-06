@@ -102,7 +102,8 @@ const run = async () => {
     }
   }
 
-  await artifactManager.generateArtifact(Array.from(siteResult.values()));
+  const file = await artifactManager.generateArtifact(Array.from(siteResult.values()));
+  setOutput("file", file);
 }
 
 run().catch(setFailed);

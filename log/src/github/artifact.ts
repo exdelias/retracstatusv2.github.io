@@ -87,11 +87,17 @@ export class ArtifactManager {
   }
 
 
-  generateArtifact(reports: Array<ReportFile>) {
+  /**
+   * Writes the content of the array to a file and returns the file's location
+   * @param reports the reports to be stringified
+   * @returns The location of the file
+   */
+  async generateArtifact(reports: Array<ReportFile>): Promise<string> {
     const reportContent = JSON.stringify(reports);
     const location = resolve(`${this.artifactName}.json`);
     this.logger.debug(`Writing to ${location} the content of file ${reportContent}`);
-    return writeFile(location, reportContent);
+    await writeFile(location, reportContent);
+    return location;
   }
 }
 
