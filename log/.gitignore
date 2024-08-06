@@ -11,8 +11,8 @@
 .idea
 
 # Report files
-report.json
-report.zip
+reports.json
+reports.zip
 log/*.json
 
 .env
