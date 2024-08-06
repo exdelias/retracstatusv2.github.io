@@ -65,6 +65,9 @@ jobs:
         command: [lint, build, test]
     runs-on: ubuntu-latest
     name: Running ${{ matrix.command }}
+    defaults:
+      run:
+        working-directory: ./log
     steps:
       - name: Checkout
         uses: actions/checkout@v4
