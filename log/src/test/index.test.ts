@@ -17,12 +17,12 @@ for (const [site, url] of sites) {
 }
 
 test("Write to doc", async () => {
-  const siteResult: Array<ReportFile> = [];
+  const siteResult: ReportFile["site"] = [];
 
   for (const [site, url] of sites) {
     const statusChecker = new StatusChecker(site, url, console);
     siteResult.push({ name: site, status: [{ timestamp: new Date().getTime(), result: (await statusChecker.verifyEndpoint()) }] });
   }
   const am = new ArtifactManager(null as unknown as GitHubClient, console, "test");
-  await am.generateArtifact(siteResult);
+  await am.generateArtifact({ incidents: [], site: siteResult });
 })
