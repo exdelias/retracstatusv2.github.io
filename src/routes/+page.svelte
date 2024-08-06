@@ -18,8 +18,10 @@
 		{#each data.statusLog as [name, siteStatus]}
 			<Status {name} statuses={siteStatus} />
 		{/each}
-		<div class="divider" />
-		<Incidents incidents={data.incidents} />
+		{#if data.incidents?.length > 0}
+			<div class="divider" />
+			<Incidents incidents={data.incidents} />
+		{/if}
 	</div>
 </main>
 
