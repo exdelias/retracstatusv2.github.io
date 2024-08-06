@@ -13,8 +13,6 @@ jobs:
     defaults:
       run:
         working-directory: ./log
-    outputs:
-      file: ${{ steps.metrics.outputs.file }}
     permissions:
       contents: read
       actions: read
@@ -53,7 +51,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ./log/report.json
+          path: ${{ steps.metrics.outputs.file }}
           if-no-files-found: error
           retention-days: 5
           overwrite: true
@@ -88,7 +86,7 @@ jobs:
       - name: Replace reports
         run: cat $FILE
         env:
-          FILE: ${{ needs.get-metrics.outputs.file }}
+          FILE: logs/${{ env.ARTIFACT_NAME }}.json
       - name: Install dependencies
         run: npm ci
       - run: npm run build
