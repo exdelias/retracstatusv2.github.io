@@ -1,6 +1,6 @@
 export interface ReportFile {
 	name: string;
-	status: Array<{timestamp:number, result:boolean}>
+	status: Array<{ timestamp: number; result: boolean }>;
 }
 
 export interface Status {
