@@ -83,7 +83,7 @@ const run = async () => {
     siteResult.set(name, report);
   }
 
-  for (let [name, report] of siteResult) {
+  for (const [name, report] of siteResult) {
     const beforeCleanLength = report.status.length;
     // Clean old timestamp reports
     const cleanedStatus = report.status.filter(({ timestamp }) => Math.abs(moment.unix(timestamp).diff(moment.now(), "days")) < env.AGE_LIMIT);

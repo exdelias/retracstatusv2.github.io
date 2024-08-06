@@ -10,6 +10,9 @@
 !.vscode/settings.json
 .idea
 
+# Report files
 report.json
 report.zip
+log/*.json
+
 .env

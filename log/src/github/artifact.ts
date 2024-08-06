@@ -1,8 +1,8 @@
-import { GitHubClient, ActionLogger, Repo } from "./types";
-import { writeFile, readFile } from "fs/promises";
 import { execSync } from "child_process";
+import { readFile, writeFile } from "fs/promises";
 import { resolve } from "path";
-import { ReportFile, Status } from "../types";
+import { ReportFile } from "../types";
+import { ActionLogger, GitHubClient, Repo } from "./types";
 
 export class ArtifactManager {
   constructor(
