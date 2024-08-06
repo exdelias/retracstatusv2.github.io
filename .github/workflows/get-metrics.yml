@@ -84,7 +84,7 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: logs
       - name: Replace reports
-        run: cat $FILE
+        run: cat $FILE > ./src/lib/logs.json
         env:
           FILE: logs/${{ env.ARTIFACT_NAME }}.json
       - name: Install dependencies
