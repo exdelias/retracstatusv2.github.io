@@ -45,7 +45,6 @@ setOutput("repo", `${repo.owner}/${repo.repo}`);
 const sources = env.SOURCES.trim().split("\n").map((line) => line.split("->"));
 
 const logger = generateCoreLogger();
-logger.info("Job names is: " + env.JOB_NAME);
 const run = async () => {
 
   const token = env.GITHUB_TOKEN;
@@ -53,12 +52,12 @@ const run = async () => {
   const artifactManager = new ArtifactManager(api, logger, env.ARTIFACT_NAME);
 
   const artifact = await artifactManager.getPreviousArtifact(repo, env.JOB_NAME);
-  logger.info(`Artifact: ${artifact}`);
+  logger.info(`Found artifact with ${artifact?.length} elements`);
 
   const siteResult: Map<string, ReportFile> = new Map();
 
   if (artifact) {
-    logger.info(`Mapping old report: ${JSON.stringify(artifact)}`);
+    logger.info(`Mapping old report`);
     artifact.forEach(report => {
       siteResult.set(report.name, report)
     });
@@ -97,7 +96,7 @@ const run = async () => {
       siteResult.delete(name);
       logger.info(`Deleted report for '${name}' because it's empty`)
     } else {
-      logger.debug(`'${name}' status are ${cleanedStatus}`);
+      logger.info(`'${name}' status has ${cleanedStatus.length} status`);
       siteResult.set(name, { name, status: cleanedStatus });
     }
   }

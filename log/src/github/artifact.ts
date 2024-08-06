@@ -11,15 +11,19 @@ export class ArtifactManager {
     private readonly artifactName: string,
   ) { }
 
+  /**
+   * Search on the previous GitHub runs for the artifacts and it tries to find a matching one.
+   * If it does, it downloads it and parses the content. If not, it returns null
+   */
   async getPreviousArtifact(repo: Repo, workflowName: string): Promise<Array<ReportFile> | null> {
-    this.logger.info(`Looking for previous artifact for file: '${workflowName}'`);
+    this.logger.info(`Looking for previous artifact for workflow: '${workflowName}'`);
     const workflows = await this.api.rest.actions.listRepoWorkflows(repo);
 
     this.logger.info("Available workflows: " + JSON.stringify(workflows.data.workflows.map(w => w?.name)));
     const workflow = workflows.data.workflows.find(w => w.name === workflowName);
 
     if (!workflow) {
-      this.logger.error("No workflow file found");
+      this.logger.error(`No workflow file found matching ${workflowName}`);
       return null;
     }
 
@@ -53,8 +57,8 @@ export class ArtifactManager {
       const artifact = artifacts.data.artifacts.find(artifact => artifact.name === this.artifactName);
 
       if (!artifact) {
-        this.logger.info(`Found no artifact in ${run.name}: ${run.id}`);
-        this.logger.info(`Available artifacts ${artifacts.data.artifacts.map(a => a.name)}`);
+        this.logger.info(`Found no artifact in ${run.name}: ${run.id} named ${this.artifactName}`);
+        this.logger.debug(`Available artifacts ${artifacts.data.artifacts.map(a => a.name)}`);
         return null;
       }
 
