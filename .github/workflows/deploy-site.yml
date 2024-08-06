@@ -4,10 +4,20 @@ on:
   push:
     branches: ['main']
 
+env:
+  ARTIFACT_NAME: report
+
 jobs:
-  build-site:
+  get-metrics:
     runs-on: ubuntu-latest
-    name: Build Site
+    name: Cron
+    defaults:
+      run:
+        working-directory: ./log
+    permissions:
+      contents: read
+      actions: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,12 +40,64 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - run: npm run build
+      - run: node dist
+        id: metrics
+        env:
+          SOURCES: |
+            GitHub->https://github.com
+            Facebook->https://facebook.com
+          GITHUB_TOKEN: ${{ github.token }}
+          JOB_NAME: ${{ github.workflow }}
+          ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ steps.metrics.outputs.file }}
+          if-no-files-found: error
+          retention-days: 5
+          overwrite: true
+
+  build-site:
+    runs-on: ubuntu-latest
+    name: Build Site
+    needs: [get-metrics]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+      - name: Use cached node_modules
+        uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: logs
+      - name: Replace reports
+        run: cat $FILE > ./src/lib/logs.json
+        env:
+          FILE: logs/${{ env.ARTIFACT_NAME }}.json
+      - name: Install dependencies
+        run: npm ci
+      - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: build
           path: ./build
           if-no-files-found: error
           retention-days: 3
+
   deploy-to-github-pages:
     environment:
       name: github-pages
