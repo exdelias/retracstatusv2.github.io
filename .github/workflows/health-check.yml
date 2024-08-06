@@ -1,4 +1,4 @@
-name: Deploy site
+name: Health Check
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
 jobs:
   get-metrics:
     runs-on: ubuntu-latest
-    name: Cron
+    name: Health check endpoints
     defaults:
       run:
         working-directory: ./log
