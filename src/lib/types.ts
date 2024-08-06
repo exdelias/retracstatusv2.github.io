@@ -3,7 +3,7 @@ export interface ReportFile {
 		name: string;
 		status: Array<{ timestamp: number; result: boolean }>;
 	}>;
-	incidents: Array<{ date: number; title: string; open: boolean }>
+	incidents: Array<{ date: number; title: string; open: boolean }>;
 }
 
 export interface Status {

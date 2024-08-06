@@ -57,6 +57,6 @@ export function loadStatusReport(): Array<[string, Status[]]> {
 	return statusReport;
 }
 
-export function loadIncidents(): ReportFile["incidents"] {
+export function loadIncidents(): ReportFile['incidents'] {
 	return reports.incidents;
 }
