@@ -15,7 +15,7 @@ export function loadStatusReport(): Array<[string, Status[]]> {
 		const logs = report.status.sort((date1, date2) => date2.timestamp - date1.timestamp);
 
 		// We fetch the first date and first status and use that as our starting point
-		let current: [moment.Moment, StatusCode] = [moment.unix(logs[0].timestamp), logs[0].result];
+		let current: [moment.Moment, StatusCode] = [moment.unix(logs[0].timestamp), logs[0].result ? 0 : 1];
 
 		// We start on index 1 as we already have index 0
 		for (let i = 1; i < logs.length; i++) {
@@ -27,7 +27,7 @@ export function loadStatusReport(): Array<[string, Status[]]> {
 				const [, currentStatus] = current;
 				// If it happened in the same day, we check if the status is different:
 				// Unless that we have an error, if so we report the error as existing at EOD
-				if (currentStatus !== StatusCode.ERROR && currentStatus !== event.result) {
+				if (currentStatus !== StatusCode.ERROR && (currentStatus) !== (event.result ? 0 : 1)) {
 					// If the currentStatus was OK, but the new event is not OK, we set as unstable because it got fixed
 					// (The `event` object is an event that happened BEFORE the current status so the event was fixed)
 					if (currentStatus === StatusCode.OK) {
@@ -41,7 +41,7 @@ export function loadStatusReport(): Array<[string, Status[]]> {
 				siteLogs.push({ status: currentStatus, date: currentDay.toDate() });
 
 				// We update the date to the current one
-				current = [moment.unix(event.timestamp), event.result];
+				current = [moment.unix(event.timestamp), event.result ? 0 : 1];
 			}
 		}
 
