@@ -5,7 +5,7 @@ on:
     branches: ['main']
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */2 * * *'
 
 env:
   ARTIFACT_NAME: reports
@@ -44,7 +44,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - run: npm run build
-      - run: node dist
+      - name: Health Check
+        run: npm start
         id: metrics
         env:
           SOURCES: |
