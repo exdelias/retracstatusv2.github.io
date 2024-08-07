@@ -12,7 +12,7 @@ export class IncidentManager {
 
     async obtainPastIncidents(repo: Repo, maxAge: number): Promise<ReportFile["incidents"]> {
         this.logger.info("Searching for previous incidents")
-        const issues = await this.api.rest.issues.listForRepo({ ...repo });
+        const issues = await this.api.rest.issues.listForRepo({ ...repo, state: "all" });
         this.logger.info(`Found ${issues.data.length} issues`);
         const incidents: ReportFile["incidents"] = []
 
