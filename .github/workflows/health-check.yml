@@ -6,6 +6,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 */2 * * *'
+  issues:
+    types: [opened, closed]
 
 env:
   ARTIFACT_NAME: reports
