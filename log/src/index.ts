@@ -39,6 +39,25 @@ const repo = getRepo(context);
 
 setOutput("repo", `${repo.owner}/${repo.repo}`);
 
+const SUPPORTED_PROTOCOLS = {
+    HTTP: 'http://',
+    HTTPS: 'https://',
+    TCP: 'tcp://'
+} as const;
+
+function isValidUrl(url: string): boolean {
+    try {
+        if (url.startsWith(SUPPORTED_PROTOCOLS.TCP)) {
+            const [host, port] = url.replace(SUPPORTED_PROTOCOLS.TCP, '').split(':');
+            return Boolean(host && port && !isNaN(parseInt(port, 10)));
+        }
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 /**
  * Inputs must be in style of
  * ```log
@@ -75,15 +94,18 @@ const run = async () => {
   // Run tests on each required source
   for (const [name, url] of sources) {
     let result: boolean;
-    if (url.startsWith("http://") || url.startsWith("https://")) {
+    if (!isValidUrl(url)) {
+        result = false;
+        warning(`Invalid URL format for check: ${name}`);
+    } else if (url.startsWith(SUPPORTED_PROTOCOLS.HTTP) || url.startsWith(SUPPORTED_PROTOCOLS.HTTPS)) {
         const statusChecker = new HTTPChecker(name, url, logger);
         result = await statusChecker.verifyEndpoint();
-    } else if (url.startsWith("tcp://")) {
+    } else if (url.startsWith(SUPPORTED_PROTOCOLS.TCP)) {
         const statusChecker = new TCPChecker(name, url, logger);
         result = await statusChecker.verifyEndpoint();
     } else {
         result = false;
-        warning("Unsupported protocol for check: " + name);
+        warning(`Unsupported protocol for check: ${name} (URL: ${url})`);
     }
 
     let report: ReportFile["site"][number]["status"] | undefined = siteResult.get(name);
