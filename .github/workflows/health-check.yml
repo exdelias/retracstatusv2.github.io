@@ -54,7 +54,7 @@ jobs:
             GitHub->https://github.com
             Facebook->https://facebook.com
             Never SSL->http://oldsplendidfresheclipse.neverssl.com/online/
-            PingTest->ping://127.0.0.1
+            TCPTest->tcp://facebook.com:443
           GITHUB_TOKEN: ${{ github.token }}
           JOB_NAME: ${{ github.workflow }}
           ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
