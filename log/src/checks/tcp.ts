@@ -52,6 +52,7 @@ function attemptConnection(host: string, port: number, logger: ActionLogger, ret
     }
 
     attemptConnection();
+
   });
 }
 
