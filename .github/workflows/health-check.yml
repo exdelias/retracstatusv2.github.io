@@ -54,7 +54,7 @@ jobs:
             GitHub->https://github.com
             Facebook->https://facebook.com
             Never SSL->http://oldsplendidfresheclipse.neverssl.com/online/
-            TCPTest->tcp://tcpbin:4242
+            TCPTest->tcp://tcpbin.com:4242
           GITHUB_TOKEN: ${{ github.token }}
           JOB_NAME: ${{ github.workflow }}
           ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
