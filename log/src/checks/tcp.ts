@@ -41,7 +41,7 @@ function attemptConnection(host: string, port: number, logger: ActionLogger, ret
       function handleRetry() {
         if (attempts < retryCount) {
           attempts += 1;
-          logger.log(`Retrying... (${attempts}/${retryCount})`);
+          logger.info(`Retrying... (${attempts}/${retryCount})`);
           setTimeout(attemptConnection, 500); // Retry after .5 seconds
         } else {
           resolve(false); // Failed after retrying
