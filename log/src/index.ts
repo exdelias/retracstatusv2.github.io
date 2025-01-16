@@ -7,6 +7,7 @@ import moment from "moment";
 import { ArtifactManager } from "./github/artifact";
 import { Repo } from "./github/types";
 import { HTTPChecker } from "./checks/http";
+import { TCPChecker } from "./checks/tcp";
 import { ReportFile } from "./types";
 import { generateCoreLogger } from "./util";
 import { IncidentManager } from "./github/incidents";
@@ -76,6 +77,9 @@ const run = async () => {
     let result: boolean;
     if (url.startsWith("http://") || url.startsWith("https://")) {
         const statusChecker = new HTTPChecker(name, url, logger);
+        result = await statusChecker.verifyEndpoint();
+    } else if (url.startsWith("tcp://")) {
+        const statusChecker = new TCPChecker(name, url, logger);
         result = await statusChecker.verifyEndpoint();
     } else {
         result = false;
