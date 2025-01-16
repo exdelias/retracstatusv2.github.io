@@ -1,4 +1,4 @@
-import { setFailed, setOutput } from "@actions/core";
+import { setFailed, setOutput, warning } from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import { Context } from "@actions/github/lib/context";
 
@@ -6,7 +6,8 @@ import { envsafe, num, str } from "envsafe";
 import moment from "moment";
 import { ArtifactManager } from "./github/artifact";
 import { Repo } from "./github/types";
-import { StatusChecker } from "./status";
+import { HTTPChecker } from "./checks/http";
+import { TCPChecker } from "./checks/tcp";
 import { ReportFile } from "./types";
 import { generateCoreLogger } from "./util";
 import { IncidentManager } from "./github/incidents";
@@ -37,6 +38,25 @@ const getRepo = (ctx: Context): Repo => {
 const repo = getRepo(context);
 
 setOutput("repo", `${repo.owner}/${repo.repo}`);
+
+const SUPPORTED_PROTOCOLS = {
+    HTTP: 'http://',
+    HTTPS: 'https://',
+    TCP: 'tcp://'
+} as const;
+
+function isValidUrl(url: string): boolean {
+    try {
+        if (url.startsWith(SUPPORTED_PROTOCOLS.TCP)) {
+            const [host, port] = url.replace(SUPPORTED_PROTOCOLS.TCP, '').split(':');
+            return Boolean(host && port && !Number.isNaN(parseInt(port, 10)));
+        }
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 /**
  * Inputs must be in style of
@@ -73,8 +93,20 @@ const run = async () => {
 
   // Run tests on each required source
   for (const [name, url] of sources) {
-    const statusChecker = new StatusChecker(name, url, logger);
-    const result = await statusChecker.verifyEndpoint();
+    let result: boolean;
+    if (!isValidUrl(url)) {
+        result = false;
+        warning(`Invalid URL format for check: ${name}`);
+    } else if (url.startsWith(SUPPORTED_PROTOCOLS.HTTP) || url.startsWith(SUPPORTED_PROTOCOLS.HTTPS)) {
+        const statusChecker = new HTTPChecker(name, url, logger);
+        result = await statusChecker.verifyEndpoint();
+    } else if (url.startsWith(SUPPORTED_PROTOCOLS.TCP)) {
+        const statusChecker = new TCPChecker(name, url, logger);
+        result = await statusChecker.verifyEndpoint();
+    } else {
+        result = false;
+        warning(`Unsupported protocol for check: ${name} (URL: ${url})`);
+    }
 
     let report: ReportFile["site"][number]["status"] | undefined = siteResult.get(name);
 
