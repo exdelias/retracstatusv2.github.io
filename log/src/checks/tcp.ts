@@ -1,7 +1,7 @@
 import * as net from 'net';
 import { ActionLogger } from "../github/types";
 
-function attemptConnection(host: string, port: number): Promise<boolean> {
+function attemptConnection(host: string, port: number, logger: ActionLogger): Promise<boolean> {
   return new Promise((resolve) => {
     const socket = new net.Socket();
 
@@ -11,20 +11,21 @@ function attemptConnection(host: string, port: number): Promise<boolean> {
     // Attempt to connect to the specified host and port
     socket.connect(port, host, () => {
       // If connected, destroy the socket and resolve true
+      socket.removeAllListeners();  // Clean up listeners
       socket.destroy();
       resolve(true);
     });
 
     // Handle errors that occur during the connection attempt
     socket.on('error', (err) => {
-      console.error('Connection error:', err.message);
+      logger.error(`Connection error: ${err.message}`);
       socket.destroy();
       resolve(false);
     });
 
     // Handle timeout scenario
     socket.on('timeout', () => {
-      console.error('Connection timeout');
+      logger.error('Connection timeout');
       socket.destroy();
       resolve(false);
     });
@@ -39,12 +40,20 @@ export class TCPChecker {
 
     async verifyEndpoint(): Promise<boolean> {
         const [host, portString] = this.healthEndpoint.replace('tcp://', '').split(':');
+        if (!host) {
+            this.logger.error('Invalid host: Host cannot be empty');
+            return false;
+        }
 
         // Convert the port part to a number
         const port = parseInt(portString, 10);
+        if (Number.isNaN(port) || port < 1 || port > 65535) {
+            this.logger.error(`Invalid port number: ${portString}`);
+            return false;
+        }
 
         try {
-            const isConnected = await attemptConnection(host, port);
+            const isConnected = await attemptConnection(host, port, this.logger);
         if (isConnected) {
             this.logger.info('Connection successful');
             return true;
