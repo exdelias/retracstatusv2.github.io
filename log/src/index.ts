@@ -1,4 +1,4 @@
-import { setFailed, setOutput } from "@actions/core";
+import { setFailed, setOutput, warning } from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import { Context } from "@actions/github/lib/context";
 
@@ -6,7 +6,7 @@ import { envsafe, num, str } from "envsafe";
 import moment from "moment";
 import { ArtifactManager } from "./github/artifact";
 import { Repo } from "./github/types";
-import { StatusChecker } from "./status";
+import { HTTPChecker } from "./checks/http";
 import { ReportFile } from "./types";
 import { generateCoreLogger } from "./util";
 import { IncidentManager } from "./github/incidents";
@@ -73,8 +73,14 @@ const run = async () => {
 
   // Run tests on each required source
   for (const [name, url] of sources) {
-    const statusChecker = new StatusChecker(name, url, logger);
-    const result = await statusChecker.verifyEndpoint();
+    let result: boolean;
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+        const statusChecker = new HTTPChecker(name, url, logger);
+        result = await statusChecker.verifyEndpoint();
+    } else {
+        result = false;
+        warning("Unsupported protocol for check: " + name);
+    }
 
     let report: ReportFile["site"][number]["status"] | undefined = siteResult.get(name);
 
