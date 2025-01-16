@@ -23,6 +23,8 @@ function attemptConnection(host: string, port: number, logger: ActionLogger, ret
       // Handle errors that occur during the connection attempt
       socket.on('error', (err) => {
         logger.error(`Connection error: ${err.message}`);
+        socket.removeAllListeners();
+        socket.destroy();
         // If it's anything other then a connection refused, retry
         if (!err.message.includes("ECONNREFUSED")) {
             handleRetry();
@@ -39,7 +41,7 @@ function attemptConnection(host: string, port: number, logger: ActionLogger, ret
       function handleRetry() {
         if (attempts < retryCount) {
           attempts += 1;
-          console.log(`Retrying... (${attempts}/${retryCount})`);
+          logger.log(`Retrying... (${attempts}/${retryCount})`);
           setTimeout(attemptConnection, 500); // Retry after .5 seconds
         } else {
           resolve(false); // Failed after retrying
