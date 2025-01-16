@@ -18,7 +18,7 @@ function attemptConnection(host: string, port: number, logger: ActionLogger): Pr
 
     // Handle errors that occur during the connection attempt
     socket.on('error', (err) => {
-      logger.error('Connection error: ${err.message}');
+      logger.error(`Connection error: ${err.message}`);
       socket.destroy();
       resolve(false);
     });
@@ -40,10 +40,14 @@ export class TCPChecker {
 
     async verifyEndpoint(): Promise<boolean> {
         const [host, portString] = this.healthEndpoint.replace('tcp://', '').split(':');
+        if (!host) {
+            this.logger.error('Invalid host: Host cannot be empty');
+            return false;
+        }
 
         // Convert the port part to a number
         const port = parseInt(portString, 10);
-        if (isNaN(port) || port < 1 || port > 65535) {
+        if (Number.isNaN(port) || port < 1 || port > 65535) {
             this.logger.error(`Invalid port number: ${portString}`);
             return false;
         }

@@ -49,7 +49,7 @@ function isValidUrl(url: string): boolean {
     try {
         if (url.startsWith(SUPPORTED_PROTOCOLS.TCP)) {
             const [host, port] = url.replace(SUPPORTED_PROTOCOLS.TCP, '').split(':');
-            return Boolean(host && port && !isNaN(parseInt(port, 10)));
+            return Boolean(host && port && !Number.isNaN(parseInt(port, 10)));
         }
         new URL(url);
         return true;
