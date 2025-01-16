@@ -1,34 +1,55 @@
 import * as net from 'net';
 import { ActionLogger } from "../github/types";
 
-function attemptConnection(host: string, port: number, logger: ActionLogger): Promise<boolean> {
+function attemptConnection(host: string, port: number, logger: ActionLogger, retryCount: number = 5): Promise<boolean> {
   return new Promise((resolve) => {
-    const socket = new net.Socket();
+    let attempts = 0;
 
-    // Set a timeout for the connection attempt
-    socket.setTimeout(1000);
+    function attemptConnection() {
+      const socket = new net.Socket();
 
-    // Attempt to connect to the specified host and port
-    socket.connect(port, host, () => {
-      // If connected, destroy the socket and resolve true
-      socket.removeAllListeners();  // Clean up listeners
-      socket.destroy();
-      resolve(true);
-    });
+      // Set a timeout for the connection attempt
+      socket.setTimeout(1000);
 
-    // Handle errors that occur during the connection attempt
-    socket.on('error', (err) => {
-      logger.error(`Connection error: ${err.message}`);
-      socket.destroy();
-      resolve(false);
-    });
+      // Attempt to connect to the specified host and port
+      socket.on('connect', () => {
+        // If connected, destroy the socket and resolve true
+        socket.removeAllListeners();  // Clean up listeners
+        socket.destroy();
+        resolve(true);
 
-    // Handle timeout scenario
-    socket.on('timeout', () => {
-      logger.error('Connection timeout');
-      socket.destroy();
-      resolve(false);
-    });
+      });
+
+      // Handle errors that occur during the connection attempt
+      socket.on('error', (err) => {
+        logger.error(`Connection error: ${err.message}`);
+        // If it's anything other then a connection refused, retry
+        if (!err.message.includes("ECONNREFUSED")) {
+            handleRetry();
+        }
+      });
+
+      // Handle timeout scenario
+      socket.on('timeout', () => {
+        logger.error('Connection timeout');
+        socket.destroy();
+        resolve(false);
+      });
+
+      function handleRetry() {
+        if (attempts < retryCount) {
+          attempts += 1;
+          console.log(`Retrying... (${attempts}/${retryCount})`);
+          setTimeout(attemptConnection, 500); // Retry after .5 seconds
+        } else {
+          resolve(false); // Failed after retrying
+        }
+      }
+
+      socket.connect(port, host);
+    }
+
+    attemptConnection();
   });
 }
 
