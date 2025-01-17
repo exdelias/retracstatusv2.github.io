@@ -28,6 +28,8 @@ function attemptConnection(host: string, port: number, logger: ActionLogger, ret
         // If it's anything other then a connection refused, retry
         if (!err.message.includes("ECONNREFUSED")) {
             handleRetry();
+        } else {
+            resolve(false); // Resolve the promise on ECONNREFUSED
         }
       });
 
