@@ -7,7 +7,7 @@ on:
   schedule:
     - cron: '0 */2 * * *'
   issues:
-    types: [opened, closed]
+    types: [opened, closed, labeled, unlabeled]
 
 env:
   ARTIFACT_NAME: reports
