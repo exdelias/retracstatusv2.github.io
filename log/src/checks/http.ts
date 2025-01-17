@@ -1,7 +1,7 @@
-import { ActionLogger } from "./github/types";
+import { ActionLogger } from "../github/types";
 import axios, { AxiosError } from "axios";
 
-export class StatusChecker {
+export class HTTPChecker {
     constructor(private readonly siteName: string, private readonly healthEndpoint: string,
         private readonly logger: ActionLogger) {
         logger.info(`Created Status Checker for ${siteName}`);
