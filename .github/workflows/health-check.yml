@@ -103,7 +103,7 @@ jobs:
           name: build
           path: ./build
           if-no-files-found: error
-          retention-days: 3
+          retention-days: 913
 
   deploy-to-github-pages:
     environment:
