@@ -10,7 +10,7 @@ on:
     types: [opened, closed]
 
 env:
-  ARTIFACT_NAME: reports
+  ARTIFACT_NAME: reportss
 
 jobs:
   get-metrics:
