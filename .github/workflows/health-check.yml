@@ -51,7 +51,8 @@ jobs:
         id: metrics
         env:
           SOURCES: |
-            GitHub->https://exdelias.vercel.app
+            Website->https://exdelias.vercel.app
+            GitHub->https://github.com
             Facebook->https://facebook.com
           GITHUB_TOKEN: ${{ github.token }}
           JOB_NAME: ${{ github.workflow }}
