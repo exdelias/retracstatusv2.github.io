@@ -61,7 +61,7 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ steps.metrics.outputs.file }}
           if-no-files-found: error
-          retention-days: 5
+          retention-days: 913
           overwrite: true
 
   build-site:
