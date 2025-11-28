@@ -54,6 +54,7 @@ jobs:
             Website->https://exdelias.vercel.app
             GitHub->https://github.com
             Facebook->https://facebook.com
+            Example->hiiamcurrentlydownandiwillbedownforeverhehe.com
           GITHUB_TOKEN: ${{ github.token }}
           JOB_NAME: ${{ github.workflow }}
           ARTIFACT_NAME: ${{ env.ARTIFACT_NAME }}
